@@ -33,6 +33,7 @@ public class Ball : MonoBehaviour
 
         if (transform.position.y < _bottomY)
         {
+            GameManager.Instance.LoseLife();
             ResetToServe();
         }
     }

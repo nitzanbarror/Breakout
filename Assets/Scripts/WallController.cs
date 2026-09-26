@@ -128,13 +128,25 @@ public class WallController : MonoBehaviour
     {
         _activeBricks.Remove(brick);
         _pool.Release(brick);
+
+        // +10 per brick, +50 bonus when it was the last brick of its row
+        bool rowCleared = true;
+        foreach (Brick other in _activeBricks)
+        {
+            if (Mathf.Abs(other.transform.position.y - brick.transform.position.y) < 0.1f)
+            {
+                rowCleared = false;
+                break;
+            }
+        }
+
+        GameManager.Instance.AddScore(rowCleared ? 60 : 10);
     }
 
     private void GameOver()
     {
         _gameOver = true;
-        Time.timeScale = 0f; // temporary freeze - replaced by GameManager next step
-        Debug.Log("GAME OVER - the wall reached the death line");
+        GameManager.Instance.GameOver();
     }
 
     private void OnDrawGizmos()
