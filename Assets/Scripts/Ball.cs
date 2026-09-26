@@ -6,6 +6,7 @@ public class Ball : MonoBehaviour
     [SerializeField] private float _bounceArcDeg = 60f;
     [SerializeField] private float _bottomY = -10.5f;
     [SerializeField] private float _serveOffsetY = 0.6f;
+    [SerializeField] private float _minVerticalFraction = 0.2f;
     [SerializeField] private Transform _paddle;
 
     private Rigidbody2D _rigidbody;
@@ -36,13 +37,23 @@ public class Ball : MonoBehaviour
         }
     }
 
-    private void FixedUpdate()
+      private void FixedUpdate()
     {
-        if (_isServed)
+        if (!_isServed)
         {
-            // constant ball speed, no matter what physics did (GDD rule)
-            _rigidbody.linearVelocity = _rigidbody.linearVelocity.normalized * _speed;
+            return;
         }
+
+        Vector2 direction = _rigidbody.linearVelocity.normalized;
+
+        // anti-flat-ball guard: never let the ball travel almost horizontally
+        if (Mathf.Abs(direction.y) < _minVerticalFraction)
+        {
+            direction.y = direction.y >= 0f ? _minVerticalFraction : -_minVerticalFraction;
+            direction = direction.normalized;
+        }
+
+        _rigidbody.linearVelocity = direction * _speed;
     }
 
     private void Launch()
