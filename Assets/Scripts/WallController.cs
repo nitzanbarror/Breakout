@@ -1,9 +1,11 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
 
 public class WallController : MonoBehaviour
 {
+    [Header("Grid")]
     [SerializeField] private Brick _brickPrefab;
     [SerializeField] private int _columns = 7;
     [SerializeField] private int _startRows = 4;
@@ -12,11 +14,23 @@ public class WallController : MonoBehaviour
     [SerializeField] private float _topY = 8.5f;
     [SerializeField] private Color[] _rowColors;
 
+    [Header("The Twist - descending wall")]
+    [SerializeField] private float _descentSpeed = 0.15f;
+    [SerializeField] private float _rowInterval = 11f;
+    [SerializeField] private float _rowIntervalDecay = 0.97f;
+    [SerializeField] private float _rowIntervalMin = 5f;
+    [SerializeField] private float _deathLineY = -5f;
+
     private ObjectPool<Brick> _pool;
     private readonly List<Brick> _activeBricks = new List<Brick>();
+    private float _currentInterval;
+    private int _rowsSpawned;
+    private bool _gameOver;
 
     private void Awake()
     {
+        Time.timeScale = 1f;
+
         // course pattern: bricks are recycled, never destroyed during play
         _pool = new ObjectPool<Brick>(
             createFunc: CreateBrick,
@@ -27,9 +41,44 @@ public class WallController : MonoBehaviour
 
     private void Start()
     {
+        _currentInterval = _rowInterval;
+
         for (int row = 0; row < _startRows; row++)
         {
-            SpawnRow(row);
+            SpawnRow(_topY - row * _cellHeight);
+        }
+
+        StartCoroutine(SpawnRowsRoutine());
+    }
+
+    private void Update()
+    {
+        if (_gameOver)
+        {
+            return;
+        }
+
+        // the whole wall creeps down, always, at a constant speed
+        transform.position += Vector3.down * (_descentSpeed * Time.deltaTime);
+
+        // defeat: any brick touching the death line
+        foreach (Brick brick in _activeBricks)
+        {
+            if (brick.transform.position.y - _cellHeight * 0.5f <= _deathLineY)
+            {
+                GameOver();
+                return;
+            }
+        }
+    }
+
+    private IEnumerator SpawnRowsRoutine()
+    {
+        while (!_gameOver)
+        {
+            yield return new WaitForSeconds(_currentInterval);
+            SpawnRowOnTop();
+            _currentInterval = Mathf.Max(_rowIntervalMin, _currentInterval * _rowIntervalDecay);
         }
     }
 
@@ -40,23 +89,57 @@ public class WallController : MonoBehaviour
         return brick;
     }
 
-    private void SpawnRow(int rowIndex)
+    private void SpawnRowOnTop()
     {
-        float y = _topY - rowIndex * _cellHeight;
+        float y = _topY;
+
+        if (_activeBricks.Count > 0)
+        {
+            float highest = float.MinValue;
+            foreach (Brick brick in _activeBricks)
+            {
+                if (brick.transform.position.y > highest)
+                {
+                    highest = brick.transform.position.y;
+                }
+            }
+            y = highest + _cellHeight;
+        }
+
+        SpawnRow(y);
+    }
+
+    private void SpawnRow(float y)
+    {
         float firstX = -(_columns - 1) * _cellWidth * 0.5f;
 
         for (int col = 0; col < _columns; col++)
         {
             Brick brick = _pool.Get();
             brick.transform.position = new Vector3(firstX + col * _cellWidth, y, 0f);
-            brick.SetColor(_rowColors[rowIndex % _rowColors.Length]);
+            brick.SetColor(_rowColors[_rowsSpawned % _rowColors.Length]);
             _activeBricks.Add(brick);
         }
+
+        _rowsSpawned++;
     }
 
     public void OnBrickDestroyed(Brick brick)
     {
         _activeBricks.Remove(brick);
         _pool.Release(brick);
+    }
+
+    private void GameOver()
+    {
+        _gameOver = true;
+        Time.timeScale = 0f; // temporary freeze - replaced by GameManager next step
+        Debug.Log("GAME OVER - the wall reached the death line");
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(new Vector3(-6f, _deathLineY, 0f), new Vector3(6f, _deathLineY, 0f));
     }
 }
