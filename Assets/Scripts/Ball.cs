@@ -2,12 +2,10 @@ using UnityEngine;
 
 public class Ball : MonoBehaviour
 {
-    [SerializeField] private float _speed = 7f;
-    [SerializeField] private float _bounceArcDeg = 60f;
-    [SerializeField] private float _bottomY = -10.5f;
-    [SerializeField] private float _serveOffsetY = 0.6f;
-    [SerializeField] private float _minVerticalFraction = 0.2f;
+    [SerializeField] private GameConfig _config;
     [SerializeField] private Transform _paddle;
+    [SerializeField] private float _bottomY = -10.5f;
+    [SerializeField] private float _serveOffsetY = 0.3f;
 
     private Rigidbody2D _rigidbody;
     private bool _isServed;
@@ -38,7 +36,7 @@ public class Ball : MonoBehaviour
         }
     }
 
-      private void FixedUpdate()
+    private void FixedUpdate()
     {
         if (!_isServed)
         {
@@ -48,13 +46,13 @@ public class Ball : MonoBehaviour
         Vector2 direction = _rigidbody.linearVelocity.normalized;
 
         // anti-flat-ball guard: never let the ball travel almost horizontally
-        if (Mathf.Abs(direction.y) < _minVerticalFraction)
+        if (Mathf.Abs(direction.y) < _config.minVerticalFraction)
         {
-            direction.y = direction.y >= 0f ? _minVerticalFraction : -_minVerticalFraction;
+            direction.y = direction.y >= 0f ? _config.minVerticalFraction : -_config.minVerticalFraction;
             direction = direction.normalized;
         }
 
-        _rigidbody.linearVelocity = direction * _speed;
+        _rigidbody.linearVelocity = direction * _config.ballSpeed;
     }
 
     private void Launch()
@@ -62,7 +60,7 @@ public class Ball : MonoBehaviour
         _isServed = true;
         float randomAngle = Random.Range(-20f, 20f);
         Vector2 direction = Quaternion.Euler(0f, 0f, randomAngle) * Vector2.up;
-        _rigidbody.linearVelocity = direction * _speed;
+        _rigidbody.linearVelocity = direction * _config.ballSpeed;
     }
 
     private void ResetToServe()
@@ -83,8 +81,8 @@ public class Ball : MonoBehaviour
                          / collision.collider.bounds.extents.x;
         hitPoint = Mathf.Clamp(hitPoint, -1f, 1f);
 
-        float angle = hitPoint * _bounceArcDeg;
+        float angle = hitPoint * _config.bounceArcDeg;
         Vector2 direction = Quaternion.Euler(0f, 0f, -angle) * Vector2.up;
-        _rigidbody.linearVelocity = direction * _speed;
+        _rigidbody.linearVelocity = direction * _config.ballSpeed;
     }
 }

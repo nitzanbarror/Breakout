@@ -441,8 +441,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 386090e62b4397449801e94315db697a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PaddleController
-  _speed: 9
-  _horizontalLimit: 4.6
+  _config: {fileID: 11400000, guid: 2786ace69e1c1f04a86212e7e2da6399, type: 2}
 --- !u!61 &572515743
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1688,12 +1687,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11e58d029ce72f540bdfab142d34a6b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Ball
-  _speed: 7
-  _bounceArcDeg: 60
+  _config: {fileID: 11400000, guid: 2786ace69e1c1f04a86212e7e2da6399, type: 2}
+  _paddle: {fileID: 572515741}
   _bottomY: -10.5
   _serveOffsetY: 0.3
-  _minVerticalFraction: 0.2
-  _paddle: {fileID: 572515741}
 --- !u!50 &1886785751
 Rigidbody2D:
   serializedVersion: 5
@@ -1860,22 +1857,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06d57949b23e155428233ff82880d491, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WallController
+  _config: {fileID: 11400000, guid: 2786ace69e1c1f04a86212e7e2da6399, type: 2}
   _brickPrefab: {fileID: 8179199635507328472, guid: 7dee28e93e88d8a46b235c0efa83c551, type: 3}
   _columns: 7
   _startRows: 4
   _cellWidth: 1.6
   _cellHeight: 0.6
   _topY: 8.5
+  _deathLineY: -5
   _rowColors:
   - {r: 0.282353, g: 0.8196079, b: 0.8000001, a: 1}
   - {r: 0.5764706, g: 0.4392157, b: 0.8588236, a: 1}
   - {r: 1, g: 0.7529413, b: 0.7960785, a: 1}
   - {r: 0.5960785, g: 0.9843138, b: 0.5960785, a: 1}
-  _descentSpeed: 0.15
-  _rowInterval: 11
-  _rowIntervalDecay: 0.97
-  _rowIntervalMin: 5
-  _deathLineY: -5
 --- !u!4 &2096745472
 Transform:
   m_ObjectHideFlags: 0

@@ -5,21 +5,17 @@ using UnityEngine.Pool;
 
 public class WallController : MonoBehaviour
 {
-    [Header("Grid")]
+    [SerializeField] private GameConfig _config;
+
+    [Header("Grid layout")]
     [SerializeField] private Brick _brickPrefab;
     [SerializeField] private int _columns = 7;
     [SerializeField] private int _startRows = 4;
     [SerializeField] private float _cellWidth = 1.6f;
     [SerializeField] private float _cellHeight = 0.6f;
     [SerializeField] private float _topY = 8.5f;
-    [SerializeField] private Color[] _rowColors;
-
-    [Header("The Twist - descending wall")]
-    [SerializeField] private float _descentSpeed = 0.15f;
-    [SerializeField] private float _rowInterval = 11f;
-    [SerializeField] private float _rowIntervalDecay = 0.97f;
-    [SerializeField] private float _rowIntervalMin = 5f;
     [SerializeField] private float _deathLineY = -5f;
+    [SerializeField] private Color[] _rowColors;
 
     private ObjectPool<Brick> _pool;
     private readonly List<Brick> _activeBricks = new List<Brick>();
@@ -29,8 +25,6 @@ public class WallController : MonoBehaviour
 
     private void Awake()
     {
-        Time.timeScale = 1f;
-
         // course pattern: bricks are recycled, never destroyed during play
         _pool = new ObjectPool<Brick>(
             createFunc: CreateBrick,
@@ -41,7 +35,7 @@ public class WallController : MonoBehaviour
 
     private void Start()
     {
-        _currentInterval = _rowInterval;
+        _currentInterval = _config.rowInterval;
 
         for (int row = 0; row < _startRows; row++)
         {
@@ -59,7 +53,7 @@ public class WallController : MonoBehaviour
         }
 
         // the whole wall creeps down, always, at a constant speed
-        transform.position += Vector3.down * (_descentSpeed * Time.deltaTime);
+        transform.position += Vector3.down * (_config.descentSpeed * Time.deltaTime);
 
         // defeat: any brick touching the death line
         foreach (Brick brick in _activeBricks)
@@ -78,7 +72,7 @@ public class WallController : MonoBehaviour
         {
             yield return new WaitForSeconds(_currentInterval);
             SpawnRowOnTop();
-            _currentInterval = Mathf.Max(_rowIntervalMin, _currentInterval * _rowIntervalDecay);
+            _currentInterval = Mathf.Max(_config.rowIntervalMin, _currentInterval * _config.rowIntervalDecay);
         }
     }
 
