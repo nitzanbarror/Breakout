@@ -1859,6 +1859,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WallController
   _config: {fileID: 11400000, guid: 2786ace69e1c1f04a86212e7e2da6399, type: 2}
   _brickPrefab: {fileID: 8179199635507328472, guid: 7dee28e93e88d8a46b235c0efa83c551, type: 3}
+  _powerUpPrefab: {fileID: 5363985466306600493, guid: 8b79b2f7eb30d9e4d94d5901da998df9, type: 3}
   _columns: 7
   _startRows: 4
   _cellWidth: 1.6

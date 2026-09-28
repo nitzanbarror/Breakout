@@ -9,6 +9,7 @@ public class WallController : MonoBehaviour
 
     [Header("Grid layout")]
     [SerializeField] private Brick _brickPrefab;
+    [SerializeField] private PowerUp _powerUpPrefab;
     [SerializeField] private int _columns = 7;
     [SerializeField] private int _startRows = 4;
     [SerializeField] private float _cellWidth = 1.6f;
@@ -18,6 +19,7 @@ public class WallController : MonoBehaviour
     [SerializeField] private Color[] _rowColors;
 
     private ObjectPool<Brick> _pool;
+    private ObjectPool<PowerUp> _powerUpPool;
     private readonly List<Brick> _activeBricks = new List<Brick>();
     private float _currentInterval;
     private int _rowsSpawned;
@@ -25,12 +27,18 @@ public class WallController : MonoBehaviour
 
     private void Awake()
     {
-        // course pattern: bricks are recycled, never destroyed during play
+        // course pattern: bricks and power-ups are recycled, never destroyed during play
         _pool = new ObjectPool<Brick>(
             createFunc: CreateBrick,
             actionOnGet: brick => brick.gameObject.SetActive(true),
             actionOnRelease: brick => brick.gameObject.SetActive(false),
             defaultCapacity: 64);
+
+        _powerUpPool = new ObjectPool<PowerUp>(
+            createFunc: CreatePowerUp,
+            actionOnGet: powerUp => powerUp.gameObject.SetActive(true),
+            actionOnRelease: powerUp => powerUp.gameObject.SetActive(false),
+            defaultCapacity: 8);
     }
 
     private void Start()
@@ -83,6 +91,13 @@ public class WallController : MonoBehaviour
         return brick;
     }
 
+    private PowerUp CreatePowerUp()
+    {
+        PowerUp powerUp = Instantiate(_powerUpPrefab);
+        powerUp.Init(_config, this);
+        return powerUp;
+    }
+
     private void SpawnRowOnTop()
     {
         float y = _topY;
@@ -120,6 +135,8 @@ public class WallController : MonoBehaviour
 
     public void OnBrickDestroyed(Brick brick)
     {
+        Vector3 brickPosition = brick.transform.position;
+
         _activeBricks.Remove(brick);
         _pool.Release(brick);
 
@@ -127,7 +144,7 @@ public class WallController : MonoBehaviour
         bool rowCleared = true;
         foreach (Brick other in _activeBricks)
         {
-            if (Mathf.Abs(other.transform.position.y - brick.transform.position.y) < 0.1f)
+            if (Mathf.Abs(other.transform.position.y - brickPosition.y) < 0.1f)
             {
                 rowCleared = false;
                 break;
@@ -135,6 +152,18 @@ public class WallController : MonoBehaviour
         }
 
         GameManager.Instance.AddScore(rowCleared ? 60 : 10);
+
+        // sometimes a broken brick drops a power-up capsule
+        if (Random.value < _config.powerUpChance)
+        {
+            PowerUp powerUp = _powerUpPool.Get();
+            powerUp.transform.position = brickPosition;
+        }
+    }
+
+    public void ReleasePowerUp(PowerUp powerUp)
+    {
+        _powerUpPool.Release(powerUp);
     }
 
     private void GameOver()
