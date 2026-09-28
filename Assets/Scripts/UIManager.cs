@@ -29,7 +29,7 @@ public class UIManager : MonoBehaviour
 
     private void RefreshLives()
     {
-        _livesText.text = $"LIVES {GameManager.Instance.Lives}";
+        _livesText.text = new string('\u2665', GameManager.Instance.Lives);
     }
 
     private void ShowGameOver()
