@@ -10,6 +10,7 @@ public class WallController : MonoBehaviour
     [Header("Grid layout")]
     [SerializeField] private Brick _brickPrefab;
     [SerializeField] private PowerUp _powerUpPrefab;
+    [SerializeField] private ParticleSystem _brickBurst;
     [SerializeField] private int _columns = 7;
     [SerializeField] private int _startRows = 4;
     [SerializeField] private float _cellWidth = 1.6f;
@@ -136,6 +137,9 @@ public class WallController : MonoBehaviour
     public void OnBrickDestroyed(Brick brick)
     {
         Vector3 brickPosition = brick.transform.position;
+        _brickBurst.transform.position = brickPosition;
+        _brickBurst.Emit(14);
+        CameraShake.Instance.Shake(0.06f, 0.1f);
 
         _activeBricks.Remove(brick);
         _pool.Release(brick);

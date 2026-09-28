@@ -38,6 +38,7 @@ public class Ball : MonoBehaviour
         if (transform.position.y < _bottomY)
         {
             GameManager.Instance.LoseLife();
+            CameraShake.Instance.Shake(0.25f, 0.35f);
             ResetToServe();
         }
     }
