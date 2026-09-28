@@ -8,11 +8,14 @@ public class Ball : MonoBehaviour
     [SerializeField] private float _serveOffsetY = 0.3f;
 
     private Rigidbody2D _rigidbody;
+    private TrailRenderer _trail;
     private bool _isServed;
 
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody2D>();
+        _trail = GetComponent<TrailRenderer>();
+        _trail.emitting = false;
     }
 
     private void Update()
@@ -61,6 +64,7 @@ public class Ball : MonoBehaviour
     private void Launch()
     {
         _isServed = true;
+        _trail.emitting = true;
         float randomAngle = Random.Range(-20f, 20f);
         Vector2 direction = Quaternion.Euler(0f, 0f, randomAngle) * Vector2.up;
         _rigidbody.linearVelocity = direction * _config.ballSpeed;
@@ -70,6 +74,10 @@ public class Ball : MonoBehaviour
     {
         _isServed = false;
         _rigidbody.linearVelocity = Vector2.zero;
+
+        // no ugly streak when the ball teleports back to the paddle
+        _trail.Clear();
+        _trail.emitting = false;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
