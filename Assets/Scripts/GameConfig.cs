@@ -13,6 +13,7 @@ public class GameConfig : ScriptableObject
     public float horizontalLimit = 4.6f;
     public float paddleWideScale = 2.6f;
     public float wideDuration = 8f;
+    public float touchSensitivity = 1.2f;
 
     [Header("Wall - the twist")]
     public float descentSpeed = 0.15f;

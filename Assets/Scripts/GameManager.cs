@@ -34,6 +34,11 @@ public class GameManager : MonoBehaviour
         Instance = this;
 
         Time.timeScale = 1f;
+        #if UNITY_ANDROID || UNITY_IOS
+        // mobile does not default to 60 fps (Session 7)
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = 60;
+        #endif
         Lives = _startingLives;
         BestScore = PlayerPrefs.GetInt(BestScoreKey, 0);
     }

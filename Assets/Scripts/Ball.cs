@@ -22,7 +22,10 @@ public class Ball : MonoBehaviour
             // stick to the paddle until launch
             transform.position = _paddle.position + Vector3.up * _serveOffsetY;
 
-            if (Input.GetKeyDown(KeyCode.Space))
+            bool launchPressed = Input.GetKeyDown(KeyCode.Space)
+                || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
+
+            if (launchPressed)
             {
                 Launch();
             }

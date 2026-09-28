@@ -7,23 +7,43 @@ public class PaddleController : MonoBehaviour
 
     private Coroutine _wideRoutine;
     private float _normalWidth;
+    private float _worldScreenWidth;
 
     private void Awake()
     {
         _normalWidth = transform.localScale.x;
+
+        Camera mainCamera = Camera.main;
+        _worldScreenWidth = mainCamera.orthographicSize * 2f * mainCamera.aspect;
     }
 
     private void Update()
     {
-        float input = Input.GetAxisRaw("Horizontal");
-
         Vector3 position = transform.position;
-        position.x += input * _config.paddleSpeed * Time.deltaTime;
+        position.x += ReadMoveDelta();
         position.x = Mathf.Clamp(position.x, -_config.horizontalLimit, _config.horizontalLimit);
         transform.position = position;
     }
 
-    // called by the Wide power-up (part B of this step)
+    private float ReadMoveDelta()
+    {
+        // touch (Android): drag anywhere = relative movement, so the finger never covers the paddle
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+            if (touch.phase == TouchPhase.Moved)
+            {
+                float worldPerPixel = _worldScreenWidth / Screen.width;
+                return touch.deltaPosition.x * worldPerPixel * _config.touchSensitivity;
+            }
+            return 0f;
+        }
+
+        // keyboard (PC)
+        return Input.GetAxisRaw("Horizontal") * _config.paddleSpeed * Time.deltaTime;
+    }
+
+    // called by the Wide power-up
     public void ActivateWide()
     {
         if (_wideRoutine != null)
