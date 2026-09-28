@@ -134,12 +134,14 @@ public class WallController : MonoBehaviour
         _rowsSpawned++;
     }
 
-    public void OnBrickDestroyed(Brick brick)
+       public void OnBrickDestroyed(Brick brick)
     {
         Vector3 brickPosition = brick.transform.position;
+
         _brickBurst.transform.position = brickPosition;
         _brickBurst.Emit(14);
         CameraShake.Instance.Shake(0.06f, 0.1f);
+        AudioManager.Instance.PlayBrick();
 
         _activeBricks.Remove(brick);
         _pool.Release(brick);

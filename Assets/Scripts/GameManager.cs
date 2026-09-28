@@ -87,7 +87,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void GameOver()
+        public void GameOver()
     {
         if (IsGameOver)
         {
@@ -97,6 +97,7 @@ public class GameManager : MonoBehaviour
         IsGameOver = true;
         _gameOverTime = Time.unscaledTime;
         Time.timeScale = 0f;
+        AudioManager.Instance.PlayGameOver();
 
         if (Score > BestScore)
         {

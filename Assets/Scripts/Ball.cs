@@ -39,6 +39,7 @@ public class Ball : MonoBehaviour
         {
             GameManager.Instance.LoseLife();
             CameraShake.Instance.Shake(0.25f, 0.35f);
+            AudioManager.Instance.PlayLifeLost();
             ResetToServe();
         }
     }
@@ -66,6 +67,8 @@ public class Ball : MonoBehaviour
     {
         _isServed = true;
         _trail.emitting = true;
+        AudioManager.Instance.PlayLaunch();
+
         float randomAngle = Random.Range(-20f, 20f);
         Vector2 direction = Quaternion.Euler(0f, 0f, randomAngle) * Vector2.up;
         _rigidbody.linearVelocity = direction * _config.ballSpeed;
@@ -83,6 +86,13 @@ public class Ball : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        // bounce blip on paddle and walls; bricks make their own sound
+        bool hitBrick = collision.gameObject.GetComponent<Brick>() != null;
+        if (!hitBrick)
+        {
+            AudioManager.Instance.PlayBounce();
+        }
+
         if (!collision.gameObject.CompareTag("Paddle"))
         {
             return;
