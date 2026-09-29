@@ -44,8 +44,10 @@ public class PaddleController : MonoBehaviour
     }
 
     // called by the Wide power-up
-    public void ActivateWide()
+     public void ActivateWide()
     {
+        AudioManager.Instance.PlayPowerUp();
+
         if (_wideRoutine != null)
         {
             StopCoroutine(_wideRoutine);

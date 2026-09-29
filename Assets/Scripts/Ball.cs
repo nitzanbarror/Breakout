@@ -13,6 +13,7 @@ public class Ball : MonoBehaviour
 
     private void Awake()
     {
+        _bottomY = -Camera.main.orthographicSize - 1f; // respawn line follows the screen height
         _rigidbody = GetComponent<Rigidbody2D>();
         _trail = GetComponent<TrailRenderer>();
         _trail.emitting = false;
