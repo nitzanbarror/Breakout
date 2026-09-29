@@ -102,7 +102,7 @@ One project, one scene, one input script with the touch path compiled under `#if
 ![Screen layout sketches — Main Menu, Game HUD, Game Over](screens.png)
 
 1. **Main Menu** — logo "BREAKOUT", tagline *"the wall fights back"*, **PLAY**, `BEST: <high score>`, mute toggle. Nothing else.
-2. **Game HUD** — `SCORE` top-left, lives as ball icons top-right; (polish) current chain shown under the score only while ≥ 2. The **death line** is drawn in-world as a dashed pulsing line — it is the real UI of the game. **Deliberately absent:** level number, timer, pause button on PC, power-up inventory.
+2. **Game HUD** — `SCORE` top-left, lives as ♥ hearts top-right; (polish) current chain shown under the score only while ≥ 2. The **death line** is drawn in-world as a dashed pulsing line — it is the real UI of the game. **Deliberately absent:** level number, timer, pause button on PC, power-up inventory.
 3. **Pause overlay** — translucent; RESUME / RESTART / MENU.
 4. **Game Over** — `GAME OVER`, score, best ("NEW BEST" flash when beaten), rows survived, RESTART / MENU.
 
@@ -112,18 +112,19 @@ One project, one scene, one input script with the touch path compiled under `#if
 
 ## 6. Art & Audio
 
-| Asset | Variants / frames | Source & licence | Use |
+**Art direction (updated in v0.5): neon.** During implementation the sprite-pack plan was replaced with a neon look built entirely from Unity's built-in 2D shapes: a near-black background, URP Bloom post-processing that makes every saturated color glow, a fading TrailRenderer on the ball, and particle bursts on brick breaks. No external image assets are used at all.
+
+| Asset | Details | Source & licence | Use |
 |---|---|---|---|
-| Paddle, ball, brick sprites | bricks in 6 colors | Kenney *Puzzle Pack* / *Shape Characters*, **CC0** — kenney.nl | core objects |
-| Power-up capsules | 3 colors | Kenney *Puzzle Pack*, **CC0** | pickups |
-| Particle sprites | 1 square + 1 spark | Kenney *Particle Pack*, **CC0** | brick-break bursts |
-| Font | Press Start 2P | Google Fonts, **SIL OFL** | all UI text |
-| Music | 1 upbeat loop | Pixabay, **Pixabay Content Licence** | background |
-| SFX | bounce, brick break (combo-pitched in polish), power-up, life lost, game over | freesound.org, **CC0-filtered only** | one-shots |
+| Paddle, ball, bricks, capsules, walls, death line | Unity built-in 2D sprites (Square/Circle) in neon colors, glow via URP Bloom | built into Unity — no external assets | all game objects |
+| Particles | Unity Particle System with the default sprite | built into Unity | brick-break bursts |
+| Font | LiberationSans SDF (TextMeshPro default); lives shown as ♥ glyphs | **SIL OFL**, ships with Unity | all UI text |
+| SFX | 6 clips (bounce, brick, power-up, launch, life lost, game over) | **synthesized specifically for this project** — original work, no licence needed | one-shots via AudioManager |
+| Music | — (kept out of MVP; a Pixabay loop remains a polish option) | — | — |
 
-**Licence note:** everything is CC0 / SIL OFL / Pixabay-licensed — free to use and redistribute including in a public build, no attribution required (credited in the README regardless, per Session 8's licensing slide). Nothing from Google Images; no paid Asset Store content, so nothing needs `.gitignore`-ing for licence reasons.
+**Licence note:** every visual is generated inside Unity and every sound was synthesized for this project — there is not a single externally-sourced asset in the build, so there are no licence obligations at all. Nothing from Google Images (per the course's licensing rules, Session 8).
 
-**Technical art rules:** Point (no filter) import, PPU 100, one SpriteAtlas; sorting layers back→front: Background → Bricks → PowerUps → Ball → Paddle → VFX → UI.
+**Technical art rules:** sorting layers back→front: Background → Bricks → PowerUps → Ball → Paddle → VFX → UI; Bloom via a Global Volume (Threshold 0.85, Intensity 1.3); camera background `#0A0A14`.
 
 **Juice spec (pillar 3):** brick break = particle burst in the brick's color + 1-frame white flash + 0.1 s micro-shake; (polish) chain hits pitch the break SFX up a semitone each; catching a power-up pops the paddle's scale (coroutine lerp, Session 5's exact example); death line pulses faster as bricks get close.
 
@@ -223,3 +224,4 @@ graph TD
 | v0.2 | 2026-09-11 | Replaced the *Slow* power-up with *Laser* (auto-fire, pooled bullets) — a dramatic counter to a wall nearing the death line, and a better fit for pillar 1. |
 | v0.3 | 2026-09-11 | Title simplified from the working name "BREAKDOWN" to **Breakout**, matching the classic. |
 | v0.4 | 2026-09-11 | Review fixes: wall growth specified precisely (rows spawn one grid cell above the topmost row; `rowInterval` clamped at `rowIntervalMin`); combo defined exactly (`10 × min(N,5)` per chain brick) and consistently marked polish; laser wording corrected — it thins the wall's front, never moves the grid up; leftover *Slow* references removed; MVP platforms narrowed to Windows + Android (macOS/WebGL → polish); screen layout sketches added. |
+| v0.5 | 2026-09-28 | Implementation-phase design updates: art direction changed to a **neon look** (built-in shapes + URP Bloom, ball trail, particle bursts, screen shake) instead of external sprite packs; lives displayed as ♥ hearts; all SFX **synthesized in-house** instead of sourced from freesound; music deferred to polish. §6 rewritten to match. |
