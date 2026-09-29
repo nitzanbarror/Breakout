@@ -6,6 +6,7 @@ using UnityEngine.Pool;
 public class WallController : MonoBehaviour
 {
     [SerializeField] private GameConfig _config;
+    [SerializeField] private PaddleController _paddle;
 
     [Header("Grid layout")]
     [SerializeField] private Brick _brickPrefab;
@@ -159,8 +160,9 @@ public class WallController : MonoBehaviour
 
         GameManager.Instance.AddScore(rowCleared ? 60 : 10);
 
-        // sometimes a broken brick drops a power-up capsule
-        if (Random.value < _config.powerUpChance)
+        // sometimes a broken brick drops a power-up capsule -
+        // but never while the paddle is already wide (no point in a duplicate)
+        if (!_paddle.IsWide && Random.value < _config.powerUpChance)
         {
             PowerUp powerUp = _powerUpPool.Get();
             powerUp.transform.position = brickPosition;

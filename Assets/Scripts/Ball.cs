@@ -21,6 +21,11 @@ public class Ball : MonoBehaviour
 
     private void Update()
     {
+        if (!GameManager.Instance.IsStarted)
+        {
+            return;
+        }
+        
         if (!_isServed)
         {
             // stick to the paddle until launch

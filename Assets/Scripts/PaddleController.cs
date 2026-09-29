@@ -9,6 +9,9 @@ public class PaddleController : MonoBehaviour
     private float _normalWidth;
     private float _worldScreenWidth;
 
+    // WallController checks this so it never drops a Wide capsule we can't use
+    public bool IsWide => _wideRoutine != null;
+
     private void Awake()
     {
         _normalWidth = transform.localScale.x;
@@ -19,6 +22,12 @@ public class PaddleController : MonoBehaviour
 
     private void Update()
     {
+        // frozen while the main menu is up
+        if (!GameManager.Instance.IsStarted)
+        {
+            return;
+        }
+
         Vector3 position = transform.position;
         position.x += ReadMoveDelta();
         position.x = Mathf.Clamp(position.x, -_config.horizontalLimit, _config.horizontalLimit);
@@ -44,7 +53,7 @@ public class PaddleController : MonoBehaviour
     }
 
     // called by the Wide power-up
-     public void ActivateWide()
+    public void ActivateWide()
     {
         AudioManager.Instance.PlayPowerUp();
 

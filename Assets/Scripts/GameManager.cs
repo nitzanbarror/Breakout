@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     // Singleton (course pattern, Session 3). Intentionally NOT DontDestroyOnLoad:
-    // restart reloads the scene, and a fresh manager = a fresh game state.
+    // going back to the menu reloads the scene, and a fresh manager = a fresh game state.
     public static GameManager Instance { get; private set; }
 
     private const string BestScoreKey = "BestScore";
@@ -16,8 +16,10 @@ public class GameManager : MonoBehaviour
     public int Score { get; private set; }
     public int Lives { get; private set; }
     public int BestScore { get; private set; }
+    public bool IsStarted { get; private set; }
     public bool IsGameOver { get; private set; }
 
+    public UnityEvent OnGameStarted;
     public UnityEvent OnScoreChanged;
     public UnityEvent OnLivesChanged;
     public UnityEvent OnGameOver;
@@ -33,7 +35,9 @@ public class GameManager : MonoBehaviour
         }
         Instance = this;
 
-        Time.timeScale = 1f;
+        // the game boots into the main menu: time is frozen until START is pressed
+        Time.timeScale = 0f;
+
         #if UNITY_ANDROID || UNITY_IOS
         // mobile does not default to 60 fps (Session 7)
         QualitySettings.vSyncCount = 0;
@@ -45,6 +49,13 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        // Esc on PC (= the back button on Android) quits the game.
+        // Note: Application.Quit does nothing inside the editor - that's normal.
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+
         if (!IsGameOver)
         {
             return;
@@ -52,12 +63,31 @@ public class GameManager : MonoBehaviour
 
         // 0.5 s lockout so a panic key-press doesn't skip the score screen
         bool lockoutOver = Time.unscaledTime - _gameOverTime > _restartLockout;
-        bool pressedRestart = Input.GetKeyDown(KeyCode.Return) || Input.GetMouseButtonDown(0);
+        bool pressedContinue = Input.GetKeyDown(KeyCode.Return) || Input.GetMouseButtonDown(0);
 
-        if (lockoutOver && pressedRestart)
+        if (lockoutOver && pressedContinue)
         {
-            Restart();
+            BackToMenu();
         }
+    }
+
+    // called by the START button on the main menu
+    public void StartGame()
+    {
+        if (IsStarted)
+        {
+            return;
+        }
+
+        IsStarted = true;
+        Time.timeScale = 1f;
+        OnGameStarted.Invoke();
+    }
+
+    // called by the EXIT button on the main menu
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 
     public void AddScore(int amount)
@@ -87,7 +117,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-        public void GameOver()
+    public void GameOver()
     {
         if (IsGameOver)
         {
@@ -109,9 +139,9 @@ public class GameManager : MonoBehaviour
         OnGameOver.Invoke();
     }
 
-    public void Restart()
+    private void BackToMenu()
     {
-        Time.timeScale = 1f;
+        // reloading the scene brings back the main menu with the updated best score
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
