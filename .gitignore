@@ -27,3 +27,5 @@ CLAUDE.md
 *.apk
 *.aab
 sysinfo.txt
+.utmp/
+*.slnx
